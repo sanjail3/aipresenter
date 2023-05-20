@@ -3,42 +3,21 @@ from pptx.dml.color import RGBColor
 from pptx.util import Pt
 
 from pexels_api import API
-import requests
-import os
+
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+
+
+
+
 load_dotenv()
 
-# Access the secret key from the environment variable
-
-pixel_api=os.getenv("PIXELS_API")
-
-pexels_api = API(pixel_api)
 
 
-
-def get_image(topic):
-    if not os.path.exists('images'):
-        os.makedirs('images')
-    photos = pexels_api.search(topic)
-    for index, photo in enumerate(photos['photos'], start=1):
-        image_url = photo['src']['large']
-        image_id = photo['id']
-        image_filename = f'images/{index}.jpg'  # Save the images in the "images" directory
-
-        response = requests.get(image_url)
-        response.raise_for_status()
-
-        with open(image_filename, 'wb') as file:
-            file.write(response.content)
-
-        print(f"Image saved: {image_filename}")
 
 
 import streamlit as st
 from present_ai import get_presentation
-
 
 
 def main():
@@ -46,18 +25,36 @@ def main():
     st.image("pptgen.png")
     topic = st.text_input("Enter a topic of PPT")
 
+    # Store the presentation generated flag in Streamlit's session state
+    if "presentation_generated" not in st.session_state:
+        st.session_state.presentation_generated = False
+
+    # Initialize ppt_bytes outside the if block
+    ppt_bytes = None
+
     if topic:
-        get_presentation(topic)
-        st.success("Presentation generated!")
+        if not st.session_state.presentation_generated:
+            ppt_bytes = get_presentation(topic)
+            st.session_state.presentation_generated = True
+            st.success("Presentation generated!")
+        else:
+            st.success("Presentation already generated!")
 
+    if st.session_state.presentation_generated and ppt_bytes:
         # Provide the generated presentation for download
-        with open("output.pptx", "rb") as f:
-            st.download_button("Download Presentation", f.read(), file_name="output.pptx")
+        st.download_button(
+            "Download Presentation",
+            ppt_bytes.getvalue(),
+            file_name="output.pptx",
+            mime="application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        )
 
-
-# Run the Streamlit web application
 if __name__ == "__main__":
     main()
+
+
+
+
 
 
 

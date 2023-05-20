@@ -3,14 +3,15 @@ from pptx.dml.color import RGBColor
 from pptx.util import Pt
 from text_gen import get_response
 from image import get_image
-
+import io
+from io import BytesIO
 
 
 
 def get_presentation(topic):
     slide1_title, slide2_content, slide_t, slide_c = get_response(topic)
     presentation = Presentation()
-
+    ppt_bytes = BytesIO()
     get_image(topic)
 
     slide0 = presentation.slides.add_slide(presentation.slide_layouts[0])
@@ -407,4 +408,9 @@ def get_presentation(topic):
     slide8.shapes.add_picture(image_path8, left1 + left_offset, top1 + top_offset, new_width, new_height)
 
     # Save the presentation
-    presentation.save("output.pptx")
+    presentation.save(ppt_bytes)
+
+    # Reset the file pointer of the BytesIO object to the beginning
+    ppt_bytes.seek(0)
+
+    return ppt_bytes
