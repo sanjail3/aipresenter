@@ -23,6 +23,7 @@ from present_ai import get_presentation
 def main():
     st.image("aipresenter.png")
     st.image("pptgen.png")
+    st.write("Welcome to AI Presenter")
     topic = st.text_input("Enter a topic of PPT")
 
     # Store the presentation generated flag in Streamlit's session state
