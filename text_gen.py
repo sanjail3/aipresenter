@@ -2,19 +2,18 @@ import os
 import openai
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
-
-# Access the secret key from the environment variable
-openai_secret_key = "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"
-
-openai.api_key =openai_secret_key
-
 
 
 
 # Generate the response using OpenAI API
 def get_response(topic):
+    load_dotenv()
+    openai_secret_key=os.getenv("OPEN_API_KEY")
+
+
+
+
+    openai.api_key = openai_secret_key
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
